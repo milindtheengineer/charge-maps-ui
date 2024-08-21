@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
-import data from "./target-stores.json";
 import Map, { MapRef, NavigationControl, Marker, Popup } from 'react-map-gl/maplibre';
+import axios, { AxiosResponse } from 'axios';
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Protocol } from "pmtiles";
@@ -31,77 +31,41 @@ const MapView = () => {
         zoom: 10,
     });
 
+    const fetchData = async () => {
+        // Assuming you have a method to get the bbox data
+        const bbox = getBboxData();
+
+        try {
+            const response: AxiosResponse<MapElement[]> = await axios.post('https://maps-server.13059596.xyz/locations', bbox);
+
+            const targetElements = response.data.filter(element => element.Name === 'target');
+            const superchargerElements = response.data.filter(element => element.Name === 'supercharger');
+            setSuperchargers(superchargerElements);
+            setStores(targetElements);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
     useEffect(() => {
         const protocol = new Protocol();
         maplibregl.addProtocol("pmtiles", protocol.tile);
         // Parse the data from your JSON file
-        const parsedNodeSuperchargers = data.elements
-            .filter(
-                (e) =>
-                    e.tags &&
-                    e.tags.amenity === "charging_station" &&
-                    e.tags.operator === "Tesla, Inc."
-            )
-            .filter(
-                (e) =>
-                    e.type === "node" &&
-                    typeof e.lon === "number" &&
-                    typeof e.lat === "number" &&
-                    !isNaN(e.lon) &&
-                    !isNaN(e.lat)
-            );
-        const parsedNodeStores = data.elements
-            .filter((e) => e.tags && e.tags.brand === "Target")
-            .filter(
-                (e) =>
-                    e.type === "node" &&
-                    typeof e.lon === "number" &&
-                    typeof e.lat === "number" &&
-                    !isNaN(e.lon) &&
-                    !isNaN(e.lat)
-            );
-        const parsedWaySuperchargers = data.elements
-            .filter(
-                (e) =>
-                    e.tags &&
-                    e.tags.amenity === "charging_station" &&
-                    e.tags.operator === "Tesla, Inc."
-            )
-            .filter(
-                (e) =>
-                    e.type === "way" &&
-                    e.center &&
-                    typeof e.center.lon === "number" &&
-                    typeof e.center.lat === "number" &&
-                    !isNaN(e.center.lon) &&
-                    !isNaN(e.center.lat)
-            );
-        const parsedWayStores = data.elements
-            .filter((e) => e.tags && e.tags.brand === "Target")
-            .filter(
-                (e) =>
-                    e.type === "way" &&
-                    e.center &&
-                    typeof e.center.lon === "number" &&
-                    typeof e.center.lat === "number" &&
-                    !isNaN(e.center.lon) &&
-                    !isNaN(e.center.lat)
-            );
-
-        setSuperchargers([
-            ...parsedNodeSuperchargers,
-            ...processElements(parsedWaySuperchargers),
-        ]);
-        setStores([...parsedNodeStores, ...processElements(parsedWayStores)]);
-
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     console.log("Geolocation success:", position.coords);
                     if (mapRef.current) {
+                        const map = mapRef.current.getMap();
+                        const onMoveEnd = () => {
+                            map.off('moveend', onMoveEnd); // Remove listener after it's called
+                            fetchData();
+                        };
+
+                        map.on('moveend', onMoveEnd); // Attach moveend event listener
                         mapRef.current.flyTo({
                             center: [position.coords.longitude, position.coords.latitude],
-                            zoom: 14,
+                            zoom: 10,
                             duration: 2000,
                         });
                     }
@@ -119,30 +83,38 @@ const MapView = () => {
         };
     }, []);
 
-    const processElements = (elements: MapElement[]) => {
-        return elements.map((e) => {
-            if (e.center) {
-                e.lat = e.center.lat;
-                e.lon = e.center.lon;
-            }
-            return e;
-        });
+    const getBboxData = () => {
+        if (mapRef.current) {
+            const bounds = mapRef.current.getMap().getBounds();
+            const bbox = {
+                MinLat: bounds.getSouthWest().lat.toString(),
+                MaxLat: bounds.getNorthEast().lat.toString(),
+                MinLon: bounds.getSouthWest().lng.toString(),
+                MaxLon: bounds.getNorthEast().lng.toString(),
+            };
+            console.log("Current Bbox:", bbox);
+            return bbox;
+        }
+        return null;
     };
+
 
     return (
         <div className="Map">
+            <button onClick={() => fetchData()}>Search this area</button>
             <Map
                 ref={mapRef}
                 initialViewState={viewport}
                 onMove={(e) => setViewport(e.viewState)}
                 style={{ width: "100vw", height: "100vh" }}
                 mapStyle={MapStyle}
+            // onMoveEnd={() => fetchData()}
             >
                 {superchargers.map((charger) => (
                     <Marker
-                        key={charger.id}
-                        longitude={charger.lon === undefined ? -122.4194 : charger.lon}
-                        latitude={charger.lat === undefined ? -122.4194 : charger.lat}
+                        key={`${charger.Name}-${charger.Lat}-${charger.Lon}`}
+                        longitude={charger.Lon === undefined ? -122.4194 : charger.Lon}
+                        latitude={charger.Lat === undefined ? -122.4194 : charger.Lat}
                         anchor="bottom"
                         onClick={(e) => {
                             e.originalEvent.stopPropagation();
@@ -158,9 +130,9 @@ const MapView = () => {
                 ))}
                 {stores.map((store) => (
                     <Marker
-                        key={store.id}
-                        longitude={store.lon === undefined ? -122.4194 : store.lon}
-                        latitude={store.lat === undefined ? -122.4194 : store.lat}
+                        key={`${store.Name}-${store.Lat}-${store.Lon}`}
+                        longitude={store.Lon === undefined ? -122.4194 : store.Lon}
+                        latitude={store.Lat === undefined ? -122.4194 : store.Lat}
                         anchor="bottom"
                         onClick={(e) => {
                             e.originalEvent.stopPropagation();
@@ -176,17 +148,15 @@ const MapView = () => {
                 ))}
                 {selectedMarker && (
                     <Popup
-                        longitude={selectedMarker.lon === undefined ? -122.4194 : selectedMarker.lon}
-                        latitude={selectedMarker.lat === undefined ? -122.4194 : selectedMarker.lat}
+                        longitude={selectedMarker.Lon === undefined ? -122.4194 : selectedMarker.Lon}
+                        latitude={selectedMarker.Lat === undefined ? -122.4194 : selectedMarker.Lat}
                         anchor="top"
                         onClose={() => setSelectedMarker(null)}
                     >
                         <div>
-                            {selectedMarker.tags.amenity === "charging_station"
-                                ? "Tesla Supercharger"
-                                : "Target"}
+                            {selectedMarker.Name}
                             <br />
-                            {selectedMarker.tags.name || "Unnamed"}
+                            {selectedMarker.Name || "Unnamed"}
                         </div>
                     </Popup>
                 )}
