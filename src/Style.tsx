@@ -7,7 +7,7 @@ const MapStyle: StyleSpecification = {
             type: "vector",
             attribution:
                 '<a href="https://github.com/protomaps/basemaps">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap</a>',
-            url: "pmtiles://https://maps.13059596.xyz/new_area_1.pmtiles",
+            url: "pmtiles://https://maps.13059596.xyz/new_area_1.pmtiles"
         },
     },
     layers: [
@@ -1160,7 +1160,7 @@ const MapStyle: StyleSpecification = {
                 ["!=", "pmap:link", 1],
             ],
             paint: {
-                "line-color": "#FF0000",
+                "line-color": "#ffffff",
                 "line-width": [
                     "interpolate",
                     ["exponential", 1.6],
