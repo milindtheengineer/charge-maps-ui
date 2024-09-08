@@ -7,9 +7,10 @@ import { Protocol } from "pmtiles";
 import { MapElement } from "./MapData";
 import MapStyle from "./Style";
 import "./styles.css";
-import { MdMyLocation, MdLocationPin, MdSearch } from "react-icons/md";
+import { MdMyLocation, MdLocationPin, MdSearch, MdOutlineHome } from "react-icons/md";
 import Example from "./ScrollableSearchBar";
 import useItemStore from './states';
+
 
 interface ViewState {
     latitude: number;
@@ -38,8 +39,8 @@ const MapView: React.FC = () => {
 
         try {
             const response: AxiosResponse<MapElement[]> = await axios.post('https://maps-server.13059596.xyz/locations/' + item?.shortcut.toLowerCase(), bbox);
-            const targetElements = response.data.filter(element => element.Name !== 'supercharger');
-            const superchargerElements = response.data.filter(element => element.Name === 'supercharger');
+            const targetElements = response.data.filter(element => element.ShortName !== 'supercharger');
+            const superchargerElements = response.data.filter(element => element.ShortName === 'supercharger');
             setSuperchargers(superchargerElements);
             setStores(targetElements);
         } catch (error) {
@@ -106,6 +107,7 @@ const MapView: React.FC = () => {
             {/* </div> */}
             <MdSearch className="absolute z-10 w-10 h-10 p-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none bottom-24 right-4" onClick={() => fetchData()}></MdSearch>
             <MdMyLocation className="absolute z-10 w-10 h-10 p-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none bottom-12 right-4" onClick={() => flyToCurrentLocation()}></MdMyLocation>
+            <a href="https://chargeandchill.info"><MdOutlineHome className="absolute z-10 w-10 h-10 p-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none bottom-36 right-4" /></a>
             <div className="w-screen h-[calc(100dvh)]">
                 <Map
                     ref={mapRef}
@@ -168,10 +170,21 @@ const MapView: React.FC = () => {
                             anchor="top"
                             onClose={() => setSelectedMarker(null)}
                         >
-                            <div>
-                                <h5>{selectedMarker.Name}</h5>
-                                {selectedMarker.Name || "Unnamed"}
-                                <a href={"http://maps.google.com/?q=" + selectedMarker.Name + "&ll=" + selectedMarker.Lat + "," + selectedMarker.Lon + "&z=" + 14}>Google</a>
+                            <div className="flex flex-col">
+                                <h5 className="flex items-start font-bold">{selectedMarker.Name || selectedMarker.ShortName || "Unknown"}</h5>
+                                <div className="flex items-start text-left">{selectedMarker.Address}</div>
+                                <ul className="flex flex-row justify-between">
+                                    <li><a className="text-blue-500 hover:underline" href={"http://maps.google.com/?q=" + selectedMarker.Name + "&ll=" + selectedMarker.Lat + "," + selectedMarker.Lon + "&z=" + 14}>Google Maps</a></li>
+                                    {selectedMarker.NumberOfChargingStalls > 0 && (
+                                        <li>{selectedMarker.NumberOfChargingStalls} stalls</li>
+                                    )}
+                                    {selectedMarker.Power > 0 && (
+                                        <li>{selectedMarker.Power} kW</li>
+                                    )}
+                                    {selectedMarker.Website && selectedMarker.Website.trim() !== "" && (
+                                        <li><a className="text-blue-500 hover:underline" href={selectedMarker.Website} target="_blank" rel="noopener noreferrer">Website</a></li>
+                                    )}
+                                </ul>
                             </div>
                         </Popup>
                     )}

@@ -2,5 +2,9 @@ export interface MapElement {
     Name: string
     Lat: number
     Lon: number
-    City: string
+    Address: string
+    NumberOfChargingStalls: number
+    Power: number
+    Website: string
+    ShortName: string
 }
