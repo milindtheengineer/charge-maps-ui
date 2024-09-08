@@ -105,9 +105,9 @@ const MapView: React.FC = () => {
             <Example />
             {/* <button className="absolute inset-x-32 z-10 bottom-12 p-2 rounded-md border-none bg-black/30 text-sm/6 text-white" onClick={() => fetchData()}>Search this area</button> */}
             {/* </div> */}
-            <MdSearch className="absolute z-10 w-10 h-10 p-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none bottom-24 right-4" onClick={() => fetchData()}></MdSearch>
-            <MdMyLocation className="absolute z-10 w-10 h-10 p-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none bottom-12 right-4" onClick={() => flyToCurrentLocation()}></MdMyLocation>
-            <a href="https://chargeandchill.info"><MdOutlineHome className="absolute z-10 w-10 h-10 p-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none bottom-36 right-4" /></a>
+            <MdSearch className="absolute z-10 w-10 h-10 p-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none bottom-36 right-4" onClick={() => fetchData()}></MdSearch>
+            <MdMyLocation className="absolute z-10 w-10 h-10 p-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none bottom-24 right-4" onClick={() => flyToCurrentLocation()}></MdMyLocation>
+            <a href="https://chargeandchill.info"><MdOutlineHome className="absolute z-10 w-10 h-10 p-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none bottom-12 right-4" /></a>
             <div className="w-screen h-[calc(100dvh)]">
                 <Map
                     ref={mapRef}
@@ -115,6 +115,7 @@ const MapView: React.FC = () => {
                     onMove={(e) => setViewport(e.viewState)}
                     mapStyle={MapStyle}
                     attributionControl={false}
+                    minZoom={7}
                 >
                     <AttributionControl customAttribution='<a href="https://github.com/protomaps/basemaps">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap</a>' compact={false} />
 
