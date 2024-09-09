@@ -7,7 +7,7 @@ const MapStyle: StyleSpecification = {
             type: "vector",
             attribution:
                 '<a href="https://github.com/protomaps/basemaps">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap</a>',
-            url: "pmtiles://https://maps.13059596.xyz/new_area_1.pmtiles"
+            url: "pmtiles://https://pmtiles.chargeandchill.info/new_area_1.pmtiles"
         },
     },
     layers: [

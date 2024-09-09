@@ -38,11 +38,14 @@ const MapView: React.FC = () => {
         const bbox = getBboxData();
 
         try {
-            const response: AxiosResponse<MapElement[]> = await axios.post('https://maps-server.13059596.xyz/locations/' + item?.shortcut.toLowerCase(), bbox);
+            const response: AxiosResponse<MapElement[]> = await axios.post('https://server.chargeandchill.info/locations/' + item?.shortcut.toLowerCase(), bbox);
             const targetElements = response.data.filter(element => element.ShortName !== 'supercharger');
             const superchargerElements = response.data.filter(element => element.ShortName === 'supercharger');
             setSuperchargers(superchargerElements);
             setStores(targetElements);
+            if (superchargerElements.length + targetElements.length < 1) {
+                alert("No superchargers or locations found for this map boundary")
+            }
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -92,7 +95,6 @@ const MapView: React.FC = () => {
                 MinLon: bounds.getSouthWest().lng.toString(),
                 MaxLon: bounds.getNorthEast().lng.toString(),
             };
-            console.log("Current Bbox:", bbox);
             return bbox;
         }
         return null;
