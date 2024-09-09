@@ -8,6 +8,7 @@ import { MapElement } from "./MapData";
 import MapStyle from "./Style";
 import "./styles.css";
 import { MdMyLocation, MdLocationPin, MdSearch, MdOutlineHome } from "react-icons/md";
+import { FaDiscord } from "react-icons/fa";
 import Example from "./ScrollableSearchBar";
 import useItemStore from './states';
 
@@ -107,8 +108,9 @@ const MapView: React.FC = () => {
             <Example />
             {/* <button className="absolute inset-x-32 z-10 bottom-12 p-2 rounded-md border-none bg-black/30 text-sm/6 text-white" onClick={() => fetchData()}>Search this area</button> */}
             {/* </div> */}
-            <MdSearch className="absolute z-10 w-10 h-10 p-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none bottom-36 right-4" onClick={() => fetchData()}></MdSearch>
-            <MdMyLocation className="absolute z-10 w-10 h-10 p-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none bottom-24 right-4" onClick={() => flyToCurrentLocation()}></MdMyLocation>
+            <MdSearch className="absolute z-10 w-10 h-10 p-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none bottom-48 right-4" onClick={() => fetchData()}></MdSearch>
+            <MdMyLocation className="absolute z-10 w-10 h-10 p-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none bottom-36 right-4" onClick={() => flyToCurrentLocation()}></MdMyLocation>
+            <a href="https://discord.gg/bES8Zecf"><FaDiscord className="absolute z-10 w-10 h-10 p-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none bottom-24 right-4" /></a>
             <a href="https://chargeandchill.info"><MdOutlineHome className="absolute z-10 w-10 h-10 p-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none bottom-12 right-4" /></a>
             <div className="w-screen h-[calc(100dvh)]">
                 <Map
